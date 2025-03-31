@@ -8,7 +8,7 @@ export default function Home() {
     <div>
       <Head>
         <title>Basic RAGPDF CRUD App</title>
-        <meta name="description" content="Basic PDF CRUD App" />
+        <meta name="description" content="Basic PDFRAG CRUD App" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
