@@ -7,6 +7,7 @@ export default function PdfList() {
   const [pdfs, setPdfs] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [filter, setFilter] = useState();
+  const [questionText, setQuestionText] = useState(''); // Estado para o texto do input
   const didFetchRef = useRef(false);
 
   useEffect(() => {
@@ -42,30 +43,6 @@ export default function PdfList() {
     setPdfs(copy);
   }
 
-/*   async function updatePdf(pdf, fieldChanged) {
-    const data = { [fieldChanged]: pdf[fieldChanged] };
-
-    await fetch(process.env.NEXT_PUBLIC_API_URL + `/pdfs/${pdf.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } */
-
-/* Our Honor Student Robert Merchant finds out that the following 
-version of the previous function works better:
-
-This bug fix applies to all projects that use a select checkbox 
-to select or unselect an item from a list of items on the frontend 
-(PDFs, etc). There is a problem with the "updatePDF( )" function 
-that gets called when a user selects (or unselects) a checkbox, 
-for example a PDF file. The update fails, because the PUT operation 
-is expecting ALL of the PDF item fields/columns to be replaced 
-(name, file, selected), not just the "selected" column.
-
-If you have replaced the old function with the new function, 
-you will need to restart the frontend.*/
-
   async function updatePdf(pdf, fieldChanged) {
     const body_data = JSON.stringify(pdf);
     const url = process.env.NEXT_PUBLIC_API_URL + `/pdfs/${pdf.id}`;
@@ -76,7 +53,6 @@ you will need to restart the frontend.*/
         headers: { 'Content-Type': 'application/json' }
     });
   }
-
 
   async function handleDeletePdf(id) {
     const res = await fetch(process.env.NEXT_PUBLIC_API_URL + `/pdfs/${id}`, {
@@ -122,6 +98,38 @@ you will need to restart the frontend.*/
     fetchPdfs(value);
   }
 
+  // Função para enviar a pergunta ao backend
+  async function handleQuestionSubmit() {
+    // Encontrar o PDF selecionado (assumindo que é o que tem selected: true)
+    const selectedPdf = pdfs.find((pdf) => pdf.selected);
+    if (!selectedPdf) {
+      alert("Por favor, selecione um PDF antes de enviar uma pergunta.");
+      return;
+    }
+    if (!questionText) {
+      alert("Por favor, digite uma pergunta.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pdfs/qa-pdf/${selectedPdf.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: questionText }),
+      });
+
+      if (response.ok) {
+        const answer = await response.text(); // A resposta é retornada como texto simples
+        setQuestionText(answer); // Atualiza o input com a resposta
+      } else {
+        alert("Erro ao processar a pergunta.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      alert("Erro ao conectar com o backend.");
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.mainInputContainer}>
@@ -138,6 +146,16 @@ you will need to restart the frontend.*/
         <button className={`${styles.filterBtn} ${filter === undefined && styles.filterActive}`} onClick={() => handleFilterChange()}>See All</button>
         <button className={`${styles.filterBtn} ${filter === true && styles.filterActive}`} onClick={() => handleFilterChange(true)}>See Selected</button>
         <button className={`${styles.filterBtn} ${filter === false && styles.filterActive}`} onClick={() => handleFilterChange(false)}>See Not Selected</button>
+        <div className={styles.questionContainer}>
+          <input 
+            type="text" 
+            className={styles.textInput} 
+            placeholder="Digite sua pergunta sobre o PDF selecionado..." 
+            value={questionText}
+            onChange={(e) => setQuestionText(e.target.value)}
+          />
+          <button className={styles.submitBtn} onClick={handleQuestionSubmit}>Enviar</button>
+        </div>
       </div>
     </div>
   );

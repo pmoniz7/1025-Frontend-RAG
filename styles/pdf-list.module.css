@@ -61,3 +61,29 @@
   text-decoration: underline;
   color: blue;
 }
+
+.questionContainer {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px; /* Espaço entre o input e o botão */
+}
+
+.textInput {
+  padding: 8px;
+  width: 70%; /* Ajuste conforme necessário */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.submitBtn {
+  padding: 8px 16px;
+  background-color: #0070f3; /* Cor de exemplo */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submitBtn:hover {
+  background-color: #005bb5; /* Cor ao passar o mouse */
+}
